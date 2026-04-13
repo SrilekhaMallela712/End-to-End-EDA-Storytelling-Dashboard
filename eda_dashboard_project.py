@@ -1,6 +1,4 @@
-# ============================================
-# DAY 1: DATA INGESTION & DATA QUALITY AUDIT
-# ============================================
+
 
 # Import Libraries
 import pandas as pd
@@ -90,3 +88,47 @@ for col in numeric_cols:
 df.to_csv("cleaned_housing.csv", index=False)
 
 print("Completed Successfully!")
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+print("\n📊 Starting Univariate Analysis...\n")
+
+# Select only important numeric columns
+numeric_cols = ['price', 'area', 'bedrooms', 'bathrooms', 'stories', 'parking']
+
+# --------------------------------------------
+# 1. Histograms (All in One Figure)
+# --------------------------------------------
+plt.figure(figsize=(15,10))
+
+for i, col in enumerate(numeric_cols, 1):
+    plt.subplot(3, 2, i)
+    sns.histplot(df[col], kde=True, color='blue')
+    plt.title(f"{col} Distribution")
+
+plt.tight_layout()
+plt.show()
+
+# --------------------------------------------
+# 2. Boxplots (All in One Figure)
+# --------------------------------------------
+plt.figure(figsize=(15,10))
+
+for i, col in enumerate(numeric_cols, 1):
+    plt.subplot(3, 2, i)
+    sns.boxplot(x=df[col], color='orange')
+    plt.title(f"{col} Boxplot")
+
+plt.tight_layout()
+plt.show()
+
+# --------------------------------------------
+# 3. Count Plot (Categorical)
+# --------------------------------------------
+plt.figure(figsize=(6,4))
+sns.countplot(x=df['furnishingstatus'])
+plt.title("Furnishing Status Count")
+plt.xticks(rotation=30)
+plt.show()
+
+print(Completed Successfully!")
