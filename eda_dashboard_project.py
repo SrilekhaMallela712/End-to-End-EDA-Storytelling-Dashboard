@@ -132,3 +132,80 @@ plt.xticks(rotation=30)
 plt.show()
 
 print(Completed Successfully!")
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+from scipy.stats import chi2_contingency
+
+print("\n📊 Starting Bivariate & Multivariate Analysis...\n")
+
+# --------------------------------------------
+# 1. Correlation Heatmap
+# --------------------------------------------
+plt.figure(figsize=(10,8))
+corr_matrix = df.corr(numeric_only=True)
+
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title("Correlation Heatmap")
+
+plt.show()
+
+# --------------------------------------------
+# 2. Scatter Plot (Area vs Price)
+# --------------------------------------------
+plt.figure(figsize=(6,4))
+sns.scatterplot(x='area', y='price', data=df)
+
+plt.title("Area vs Price Relationship")
+
+plt.show()
+
+# --------------------------------------------
+# 3. Boxplot (Price vs Furnishing Status)
+# --------------------------------------------
+plt.figure(figsize=(6,4))
+sns.boxplot(x='furnishingstatus', y='price', data=df)
+
+plt.title("Price vs Furnishing Status")
+plt.xticks(rotation=30)
+
+plt.show()
+
+# --------------------------------------------
+# 4. Pairplot (Important Features)
+# --------------------------------------------
+important_cols = ['price', 'area', 'bedrooms', 'bathrooms', 'stories']
+
+sns.pairplot(df[important_cols])
+
+plt.show()
+
+# --------------------------------------------
+# 5. Chi-Square Test
+# --------------------------------------------
+print("\n🔹 Chi-Square Test: furnishingstatus vs airconditioning")
+
+contingency_table = pd.crosstab(df['furnishingstatus'], df['airconditioning'])
+
+chi2, p, dof, expected = chi2_contingency(contingency_table)
+
+print(f"Chi2 Value: {chi2:.2f}")
+print(f"P-Value: {p:.4f}")
+
+if p < 0.05:
+    print("👉 Significant relationship between variables")
+else:
+    print("👉 No significant relationship")
+
+# --------------------------------------------
+# 6. Top Correlated Features with Price
+# --------------------------------------------
+print("\n🔹 Top Correlated Features with Price:")
+
+top_corr = corr_matrix['price'].sort_values(ascending=False)
+print(top_corr)
+
+# --------------------------------------------
+# END
+# --------------------------------------------
+print("Completed Successfully!")
