@@ -209,3 +209,98 @@ print(top_corr)
 # END
 # --------------------------------------------
 print("Completed Successfully!")
+# ============================================
+# DAY 4: STATISTICAL TESTING
+# ============================================
+
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+print("\n📊 Starting Statistical Testing...\n")
+
+# --------------------------------------------
+# 1. Normality Test (Shapiro-Wilk Test)
+# --------------------------------------------
+print("\n🔹 Normality Test (Shapiro-Wilk):")
+
+sample_data = df['price'].sample(100, random_state=42)
+
+stat, p = stats.shapiro(sample_data)
+
+print(f"Statistic: {stat:.4f}")
+print(f"P-Value: {p:.4f}")
+
+if p > 0.05:
+    print("👉 Data is normally distributed")
+else:
+    print("👉 Data is NOT normally distributed")
+
+# --------------------------------------------
+# 2. Q-Q Plot
+# --------------------------------------------
+plt.figure(figsize=(6,4))
+stats.probplot(df['price'], dist="norm", plot=plt)
+plt.title("Q-Q Plot for Price")
+
+plt.show(block=False)
+plt.pause(3)
+plt.close()
+
+# --------------------------------------------
+# 3. T-Test (Air Conditioning vs Price)
+# --------------------------------------------
+print("\n🔹 T-Test: Price vs Air Conditioning")
+
+group1 = df[df['airconditioning'] == 1]['price']
+group2 = df[df['airconditioning'] == 0]['price']
+
+t_stat, p_val = stats.ttest_ind(group1, group2)
+
+print(f"T-Statistic: {t_stat:.4f}")
+print(f"P-Value: {p_val:.4f}")
+
+if p_val < 0.05:
+    print("👉 Significant difference between groups")
+else:
+    print("👉 No significant difference")
+
+# --------------------------------------------
+# 4. ANOVA Test (Furnishing Status vs Price)
+# --------------------------------------------
+print("\n🔹 ANOVA Test: Price vs Furnishing Status")
+
+groups = [group['price'].values for name, group in df.groupby('furnishingstatus')]
+
+f_stat, p_val = stats.f_oneway(*groups)
+
+print(f"F-Statistic: {f_stat:.4f}")
+print(f"P-Value: {p_val:.4f}")
+
+if p_val < 0.05:
+    print("👉 At least one group is significantly different")
+else:
+    print("👉 No significant difference among groups")
+
+# --------------------------------------------
+# 5. Mann-Whitney U Test (Non-Parametric)
+# --------------------------------------------
+print("\n🔹 Mann-Whitney U Test: Price vs Guestroom")
+
+group1 = df[df['guestroom'] == 1]['price']
+group2 = df[df['guestroom'] == 0]['price']
+
+u_stat, p_val = stats.mannwhitneyu(group1, group2)
+
+print(f"U-Statistic: {u_stat:.4f}")
+print(f"P-Value: {p_val:.4f}")
+
+if p_val < 0.05:
+    print("👉 Significant difference between groups")
+else:
+    print("👉 No significant difference")
+
+# --------------------------------------------
+# FINAL MESSAGE
+# --------------------------------------------
+print("Completed Successfully!")
