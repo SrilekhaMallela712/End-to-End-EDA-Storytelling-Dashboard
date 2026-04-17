@@ -1,50 +1,83 @@
-# ============================================
-# DAY 5: STREAMLIT BASIC DASHBOARD
-# ============================================
-
 import streamlit as st
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # Title
 st.title("🏠 Housing Data Dashboard")
-
-# Description
-st.write("Basic EDA Dashboard using Streamlit")
 
 # Load Dataset
 df = pd.read_csv("Housing.csv")
 
 # --------------------------------------------
-# Show Data
+# Sidebar Filters
 # --------------------------------------------
-st.subheader("📄 Dataset Preview")
-st.dataframe(df)
+st.sidebar.header("🔍 Filter Data")
+
+min_price = int(df['price'].min())
+max_price = int(df['price'].max())
+
+price_range = st.sidebar.slider(
+    "Select Price Range",
+    min_price,
+    max_price,
+    (min_price, max_price)
+)
+
+furnishing = st.sidebar.selectbox(
+    "Select Furnishing Status",
+    df['furnishingstatus'].unique()
+)
+
+# Apply Filters
+filtered_df = df[
+    (df['price'] >= price_range[0]) &
+    (df['price'] <= price_range[1]) &
+    (df['furnishingstatus'] == furnishing)
+]
 
 # --------------------------------------------
-# Show Shape
+# Show Filtered Data
 # --------------------------------------------
-st.subheader("📊 Dataset Shape")
-st.write(f"Rows: {df.shape[0]}, Columns: {df.shape[1]}")
+st.subheader("📄 Filtered Data")
+st.dataframe(filtered_df)
 
 # --------------------------------------------
-# Show Column Names
+# Layout (Left: Options, Right: Graph)
 # --------------------------------------------
-st.subheader("🧾 Column Names")
-st.write(df.columns)
+col1, col2 = st.columns([1, 3])
+
+with col1:
+    st.subheader("📊 Select Graph")
+
+    graph_option = st.radio(
+        "Choose:",
+        ("Price Distribution", "Area vs Price", "Price vs Furnishing")
+    )
 
 # --------------------------------------------
-# Show Summary Statistics
+# Show Graph Based on Selection
 # --------------------------------------------
-st.subheader("📈 Statistical Summary")
-st.write(df.describe())
+with col2:
+    if graph_option == "Price Distribution":
+        st.subheader("📊 Price Distribution")
+        fig, ax = plt.subplots()
+        sns.histplot(filtered_df['price'], kde=True, ax=ax)
+        st.pyplot(fig)
 
-# --------------------------------------------
-# Missing Values
-# --------------------------------------------
-st.subheader("❗ Missing Values")
-st.write(df.isnull().sum())
+    elif graph_option == "Area vs Price":
+        st.subheader("📈 Area vs Price")
+        fig, ax = plt.subplots()
+        sns.scatterplot(x='area', y='price', data=filtered_df, ax=ax)
+        st.pyplot(fig)
+
+    elif graph_option == "Price vs Furnishing":
+        st.subheader("📦 Price vs Furnishing Status")
+        fig, ax = plt.subplots()
+        sns.boxplot(x='furnishingstatus', y='price', data=filtered_df, ax=ax)
+        st.pyplot(fig)
 
 # --------------------------------------------
 # Footer
 # --------------------------------------------
-st.write("Completed - Basic Dashboard Ready!")
+st.write("Completed - Interactive Dashboard Ready!")
