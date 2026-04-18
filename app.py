@@ -3,16 +3,25 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# Page Config
+st.set_page_config(page_title="Housing Dashboard", layout="wide")
+
 # Title
-st.title("🏠 Housing Data Dashboard")
+st.title("🏠 Housing Data Analysis Dashboard")
 
 # Load Dataset
 df = pd.read_csv("Housing.csv")
 
 # --------------------------------------------
+# Sidebar Navigation
+# --------------------------------------------
+st.sidebar.title("📌 Navigation")
+page = st.sidebar.radio("Go to", ["Overview", "Filtered Data", "Visualizations"])
+
+# --------------------------------------------
 # Sidebar Filters
 # --------------------------------------------
-st.sidebar.header("🔍 Filter Data")
+st.sidebar.header("🔍 Filters")
 
 min_price = int(df['price'].min())
 max_price = int(df['price'].max())
@@ -25,7 +34,7 @@ price_range = st.sidebar.slider(
 )
 
 furnishing = st.sidebar.selectbox(
-    "Select Furnishing Status",
+    "Furnishing Status",
     df['furnishingstatus'].unique()
 )
 
@@ -37,47 +46,77 @@ filtered_df = df[
 ]
 
 # --------------------------------------------
-# Show Filtered Data
+# PAGE 1: OVERVIEW
 # --------------------------------------------
-st.subheader("📄 Filtered Data")
-st.dataframe(filtered_df)
+if page == "Overview":
+    st.subheader("📄 Dataset Overview")
+    st.dataframe(df)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("Total Rows", df.shape[0])
+
+    with col2:
+        st.metric("Total Columns", df.shape[1])
+
+    st.subheader("📈 Summary Statistics")
+    st.write(df.describe())
+
+    st.subheader("❗ Missing Values")
+    st.write(df.isnull().sum())
 
 # --------------------------------------------
-# Layout (Left: Options, Right: Graph)
+# PAGE 2: FILTERED DATA
 # --------------------------------------------
-col1, col2 = st.columns([1, 3])
+elif page == "Filtered Data":
+    st.subheader("📄 Filtered Dataset")
+    st.dataframe(filtered_df)
 
-with col1:
-    st.subheader("📊 Select Graph")
+    csv = filtered_df.to_csv(index=False).encode('utf-8')
 
-    graph_option = st.radio(
-        "Choose:",
-        ("Price Distribution", "Area vs Price", "Price vs Furnishing")
+    st.download_button(
+        label="⬇️ Download Filtered Data",
+        data=csv,
+        file_name='filtered_housing_data.csv',
+        mime='text/csv'
     )
 
 # --------------------------------------------
-# Show Graph Based on Selection
+# PAGE 3: VISUALIZATIONS
 # --------------------------------------------
-with col2:
-    if graph_option == "Price Distribution":
-        st.subheader("📊 Price Distribution")
-        fig, ax = plt.subplots()
-        sns.histplot(filtered_df['price'], kde=True, ax=ax)
-        st.pyplot(fig)
+elif page == "Visualizations":
 
-    elif graph_option == "Area vs Price":
-        st.subheader("📈 Area vs Price")
-        fig, ax = plt.subplots()
-        sns.scatterplot(x='area', y='price', data=filtered_df, ax=ax)
-        st.pyplot(fig)
+    st.subheader("📊 Select Visualization")
 
-    elif graph_option == "Price vs Furnishing":
-        st.subheader("📦 Price vs Furnishing Status")
-        fig, ax = plt.subplots()
-        sns.boxplot(x='furnishingstatus', y='price', data=filtered_df, ax=ax)
-        st.pyplot(fig)
+    graph = st.radio(
+        "Choose Graph",
+        ("Price Distribution", "Area vs Price", "Price vs Furnishing")
+    )
+
+    col1, col2 = st.columns([1, 3])
+
+    with col2:
+        if graph == "Price Distribution":
+            st.subheader("📊 Price Distribution")
+            fig, ax = plt.subplots()
+            sns.histplot(filtered_df['price'], kde=True, ax=ax)
+            st.pyplot(fig)
+
+        elif graph == "Area vs Price":
+            st.subheader("📈 Area vs Price")
+            fig, ax = plt.subplots()
+            sns.scatterplot(x='area', y='price', data=filtered_df, ax=ax)
+            st.pyplot(fig)
+
+        elif graph == "Price vs Furnishing":
+            st.subheader("📦 Price vs Furnishing Status")
+            fig, ax = plt.subplots()
+            sns.boxplot(x='furnishingstatus', y='price', data=filtered_df, ax=ax)
+            st.pyplot(fig)
 
 # --------------------------------------------
 # Footer
 # --------------------------------------------
-st.write("Completed - Interactive Dashboard Ready!")
+st.markdown("---")
+st.write("📊 End-to-End EDA & Storytelling Dashboard using Streamlit")
